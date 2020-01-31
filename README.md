@@ -1,4 +1,4 @@
-## My Project
+## Fine tune and host PyTorch BERT model on SageMaker
 
 TODO: Fill this README out!
 
