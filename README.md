@@ -1,11 +1,9 @@
 ## Fine tune and host PyTorch BERT model on SageMaker
 
-TODO: Fill this README out!
-
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
+Background and motivation
+What is BERT?
+BERT fine tuning
+BERT model hosting.
 
 ## License
 
