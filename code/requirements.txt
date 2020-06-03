@@ -1,0 +1,6 @@
+tqdm
+requests==2.22.0
+regex
+sentencepiece
+sacremoses
+transformers==2.3.0
