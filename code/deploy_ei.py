@@ -14,20 +14,20 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 MAX_LEN = 64  # this is the max length of the sentence
 
-print('Loading BERT tokenizer...')
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
+print("Loading BERT tokenizer...")
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased", do_lower_case=True)
 
 
 def model_fn(model_dir):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    loaded_model = torch.jit.load(os.path.join(model_dir, 'traced_bert.pt'))
+    loaded_model = torch.jit.load(os.path.join(model_dir, "traced_bert.pt"))
     return loaded_model.to(device)
 
 
 def input_fn(request_body, request_content_type):
     """An input_fn that loads a pickled tensor"""
-    if request_content_type == 'application/json':
+    if request_content_type == "application/json":
         sentence = json.loads(request_body)
 
         input_ids = []
@@ -54,14 +54,12 @@ def input_fn(request_body, request_content_type):
         train_masks = torch.tensor(attention_masks)
 
         return train_inputs, train_masks
-    else:
-        # Handle other content-types here or raise an Exception
-        # if the content type is not supported.
-        pass
+
+    raise ValueError("Unsupported content type: {}".format(request_content_type))
 
 
 def predict_fn(input_data, model):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
 
@@ -69,5 +67,5 @@ def predict_fn(input_data, model):
     input_id = input_id.to(device)
     input_mask = input_mask.to(device)
     with torch.no_grad():
-        with torch.jit.optimized_execution(True, {'target_device': 'eia:0'}):
+        with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
             return model(input_id, attention_mask=input_mask)[0]
