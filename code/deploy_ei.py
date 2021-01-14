@@ -66,6 +66,8 @@ def predict_fn(input_data, model):
     input_id, input_mask = input_data
     input_id = input_id.to(device)
     input_mask = input_mask.to(device)
+    
     with torch.no_grad():
         with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
-            return model(input_id, attention_mask=input_mask)[0]
+            y = model(input_id, attention_mask=input_mask)[0]
+        return y
