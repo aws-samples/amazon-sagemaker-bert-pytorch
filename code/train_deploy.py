@@ -234,43 +234,46 @@ def test(model, test_loader, device):
 
 def model_fn(model_dir):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    print("================ objects in model_dir ===================")
+    print(os.listdir(model_dir))
     model = BertForSequenceClassification.from_pretrained(model_dir)
+    print("================ model loaded ===========================")
     return model.to(device)
 
 
 def input_fn(request_body, request_content_type):
     """An input_fn that loads a pickled tensor"""
     if request_content_type == "application/json":
-        sentence = json.loads(request_body)
-
-        input_ids = []
-        encoded_sent = tokenizer.encode(sentence, add_special_tokens=True)
-        input_ids.append(encoded_sent)
+        data = json.loads(request_body)
+        print("================ input sentences ===============")
+        print(data)
+        
+        if isinstance(data, str):
+            data = [data]
+        elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], str):
+            pass
+        else:
+            raise ValueError("Unsupported input type. Input type can be a string or an non-empty list. \
+                             I got {}".format(data))
+                       
+        encoded = tokenizer(data, add_special_tokens=True)
+        print("================ encoded sentences and attension mask ==============")
+        print(encoded)
 
         # pad shorter sentences
-        input_ids_padded = []
-        for i in input_ids:
-            while len(i) < MAX_LEN:
-                i.append(0)
-            input_ids_padded.append(i)
-        input_ids = input_ids_padded
+        input_ids, attention = encoded['input_ids'], encoded['attention_mask']
+        padded, mask = torch.zeros(len(input_ids), MAX_LEN), torch.zeros(len(input_ids), MAX_LEN)
+        for i, (p, m) in enumerate(zip(input_ids, attention)):
+            padded[i, :len(p)] = torch.tensor(p)
+            mask[i,:len(m)] = torch.tensor(m)
+        
+        print("================= padded input and attention mask ================")
+        print(padded, '\n', mask)
 
-        # mask; 0: added, 1: otherwise
-        attention_masks = []
-        # For each sentence...
-        for sent in input_ids:
-            att_mask = [int(token_id > 0) for token_id in sent]
-            attention_masks.append(att_mask)
-
-        # convert to PyTorch data types.
-        train_inputs = torch.tensor(input_ids)
-        train_masks = torch.tensor(attention_masks)
-
-        return train_inputs, train_masks
+        return padded.long(), mask.long()
 
     raise ValueError("Unsupported content type: {}".format(request_content_type))
-
+    
 
 def predict_fn(input_data, model):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -280,9 +283,13 @@ def predict_fn(input_data, model):
     input_id, input_mask = input_data
     input_id = input_id.to(device)
     input_mask = input_mask.to(device)
+    print("============== encoded data =================")
+    print(input_id, input_mask)
     with torch.no_grad():
-        return model(input_id, token_type_ids=None, attention_mask=input_mask)[0]
-
+        y = model(input_id, attention_mask=input_mask)[0]
+        print("=============== inference result =================")
+        print(y)
+    return y
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
