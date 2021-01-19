@@ -280,7 +280,6 @@ def input_fn(request_body, request_content_type):
         print(padded, '\n', mask)
 
         return padded.long(), mask.long()
-
     raise ValueError("Unsupported content type: {}".format(request_content_type))
     
 

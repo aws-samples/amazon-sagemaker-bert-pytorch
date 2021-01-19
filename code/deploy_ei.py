@@ -28,6 +28,7 @@ def model_fn(model_dir):
     return loaded_model.to(device)
 
 
+
 def input_fn(request_body, request_content_type):
     """An input_fn that loads a pickled tensor"""
     if request_content_type == "application/json":
@@ -43,6 +44,7 @@ def input_fn(request_body, request_content_type):
             raise ValueError("Unsupported input type. Input type can be a string or an non-empty list. \
                              I got {}".format(data))
                        
+
         #encoded = [tokenizer.encode(x, add_special_tokens=True) for x in data]
         #encoded = tokenizer(data, add_special_tokens=True) 
         
