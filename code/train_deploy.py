@@ -241,6 +241,8 @@ def model_fn(model_dir):
     return model.to(device)
 
 
+
+
 def input_fn(request_body, request_content_type):
     """An input_fn that loads a pickled tensor"""
     if request_content_type == "application/json":
@@ -256,16 +258,23 @@ def input_fn(request_body, request_content_type):
             raise ValueError("Unsupported input type. Input type can be a string or an non-empty list. \
                              I got {}".format(data))
                        
-        encoded = tokenizer(data, add_special_tokens=True)
-        print("================ encoded sentences and attension mask ==============")
-        print(encoded)
+        #encoded = [tokenizer.encode(x, add_special_tokens=True) for x in data]
+        #encoded = tokenizer(data, add_special_tokens=True) 
+        
+        # for backward compatibility use the following way to encode 
+        # https://github.com/huggingface/transformers/issues/5580
+        input_ids = [tokenizer.encode(x, add_special_tokens=True) for x in data]
+        
+        print("================ encoded sentences ==============")
+        print(input_ids)
 
-        # pad shorter sentences
-        input_ids, attention = encoded['input_ids'], encoded['attention_mask']
-        padded, mask = torch.zeros(len(input_ids), MAX_LEN), torch.zeros(len(input_ids), MAX_LEN)
-        for i, (p, m) in enumerate(zip(input_ids, attention)):
+        # pad shorter sentence
+        padded =  torch.zeros(len(input_ids), MAX_LEN) 
+        for i, p in enumerate(input_ids):
             padded[i, :len(p)] = torch.tensor(p)
-            mask[i,:len(m)] = torch.tensor(m)
+     
+        # create mask
+        mask = (padded != 0)
         
         print("================= padded input and attention mask ================")
         print(padded, '\n', mask)
