@@ -1,6 +1,6 @@
 
 
-## NOTICE: The new HuggingFace Deep Learning Container (DLC) is available in Amazon SageMaker (see [Use Hugging Face with Amazon SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/hugging-face.html)). For customer training BERT models, the recommended pattern is to use HuggingFace DLC, show as in [Finetuning Hugging Face DistilBERT with Amazon Reviews Polarity dataset](https://github.com/aws-samples/finetune-deploy-bert-with-amazon-sagemaker-for-hugging-face)
+## NOTICE: The new HuggingFace Deep Learning Container (DLC) is available in Amazon SageMaker (see [Use Hugging Face with Amazon SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/hugging-face.html)). For customer training BERT models, the recommended pattern is to use HuggingFace DLC, shown as in [Finetuning Hugging Face DistilBERT with Amazon Reviews Polarity dataset](https://github.com/aws-samples/finetune-deploy-bert-with-amazon-sagemaker-for-hugging-face)
 
 This repo is **no longer actively maintained**. 
 
